@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, SubmitField, EmailField, StringField
 from wtforms import IntegerField, TelField
+from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired, Length
 from forms.custom_validators import check_phone
 
@@ -29,4 +30,7 @@ class RegisterFormRealtor(FlaskForm):
                                                    Length(min=8)])
     password_again = PasswordField('Повторите пароль',
                                    validators=[DataRequired(), Length(min=8)])
+    profile_image = FileField('Фотография профиля', validators=[
+        FileAllowed(['jpg', 'png', 'jpeg'], 'Только изображения!')
+    ])
     submit = SubmitField('Войти')
