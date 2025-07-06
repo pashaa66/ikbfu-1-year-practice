@@ -1,16 +1,18 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, current_app
 from flask_login import LoginManager, login_user, logout_user, login_required
 from forms.login import LoginForm
 from forms.register import RegisterFormUser, RegisterFormRealtor
 from data.users import User
 from data import db_session
+from werkzeug.utils import secure_filename
+from config import Config
 import os
 
 # Настройка
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = os.path.join(os.basedir,
-                                           "static", "img", "uploads")
-app.config["SECRET_KEY"] = "ikbfu_secret_key"
+app.config.from_object(Config)
+os.makedirs(app.config["REALTOR_IMAGE_PATH"], exist_ok=True)
+os.makedirs(app.config["ANNOUNCEMENT_IMAGE_PATH"], exist_ok=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -105,12 +107,22 @@ def register_realtor():
                                    form=form,
                                    message='Такой пользователь уже есть')
         existing_user = db_sess.query(
-            User).filter(User.email == form.email.data).first()
+            User).filter(User.phone_number == form.phone_number.data).first()
         if existing_user:
             return render_template('register_buyer.html',
                                    title='Регистрация риэлтора',
                                    form=form,
                                    message='Такой пользователь уже есть')
+        profile_image_filename = None
+        if form.profile_image.data:
+            file = form.profile_image.data
+            filename = secure_filename(file.filename)
+            upload_folder = os.path.join(current_app.root_path, "static", "img", "uploads", )
+            os.makedirs(upload_folder, exist_ok=True)
+            file_path = os.path.join(upload_folder, filename)
+            file.save(file_path)
+            profile_image_filename = filename
+
         realtor = User(
             name=form.name.data,
             surname=form.surname.data,

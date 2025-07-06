@@ -23,3 +23,8 @@ def check_phone(form, field):
     if len(phone_number[1:]) != 11:
         raise ValidationError('неверное количество цифр')
     return phone_number
+
+
+def allowed_file(filename, allowed_extensions):
+    return "." in filename and \
+           filename.rsplit(".", 1)[1].lower() in allowed_extensions
