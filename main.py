@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, current_app, abort
+from flask import url_for, request
 from flask_login import LoginManager, login_user, logout_user, login_required
 from flask_login import current_user
 from forms.login import LoginForm
@@ -184,34 +185,38 @@ def creating_an_announcement():
             number_of_floors=form.number_of_floors.data,
             year_of_construction=form.year_of_construction.data,
             is_sell=form.is_sell.data,
-            user=current_user
+            user_id=current_user.id
         )
-        if form.main_image.data:
-            file = form.main_image.data
-            filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
-            save_path = os.path.join(
-                current_app.config["ANNOUNCEMENT_IMAGE_PATH"], filename
-                )
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            file.save(save_path)
-            announcement.main_image = filename
-
         db_sess.add(announcement)
         db_sess.commit()
 
-        if form.extra_photos.data:
-            for file in form.extra_photos.data:
+        folder = os.path.join(
+            current_app.config["ANNOUNCEMENT_IMAGE_PATH"],
+            f"announcement_{announcement.id}"
+        )
+        os.makedirs(folder, exist_ok=True)
+
+        if form.main_image.data:
+            file = form.main_image.data
+            filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+            save_path = os.path.join(folder, filename)
+            file.save(save_path)
+            announcement.main_image = (
+                f"announcement_{announcement.id}/{filename}"
+                )
+
+        if form.extra_images.data:
+            for file in form.extra_images.data:
                 if file and file.filename:
                     extra_filename = (
                         f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
                         )
-                    extra_path = os.path.join(
-                        current_app.config["ANNOUNCEMENT_IMAGE_PATH"],
-                        extra_filename
-                        )
+                    extra_path = os.path.join(folder, extra_filename)
                     file.save(extra_path)
                     image = AnnouncementImages(
-                        path=extra_filename,
+                        path=(
+                            f"announcement_{announcement.id}/{extra_filename}"
+                            ),
                         announcement_id=announcement.id
                     )
                     db_sess.add(image)
@@ -235,6 +240,103 @@ def announcement(id):
         "announcement.html",
         announcement=current_announcement,
         title=current_announcement.title
+        )
+
+
+@app.route("/edit_announcement/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_announcement(id):
+    db_sess = db_session.create_session()
+    announcement = db_sess.query(
+        Announcements).filter(Announcements.id == id).first()
+    if not announcement:
+        abort(404)
+    if (current_user.role != "realtor"
+            or announcement.user_id != current_user.id):
+        abort(403)
+    form = CreateAnnouncementForm()
+    if request.method == "GET":
+        form.title.data = announcement.title
+        form.description.data = announcement.description
+        form.city.data = announcement.location.split(",")[0].strip()
+        form.street.data = announcement.location.split(",")[1].strip()
+        form.number_of_house.data = announcement.location.split(",")[2].strip()
+        form.price.data = announcement.price
+        form.announcement_type.data = announcement.announcement_type
+        form.square.data = announcement.square
+        form.kitchen_square.data = announcement.kitchen_square
+        form.number_of_rooms.data = announcement.number_of_rooms
+        form.floor.data = announcement.floor
+        form.number_of_floors.data = announcement.number_of_floors
+        form.year_of_construction.data = announcement.year_of_construction
+        form.is_sell.data = announcement.is_sell
+
+    if form.validate_on_submit():
+        location = (
+            f"{form.city.data}, "
+            f"{form.street.data}, "
+            f"{form.number_of_house.data}"
+        )
+
+        announcement.title = form.title.data
+        announcement.description = form.description.data
+        announcement.location = location
+        announcement.price = form.price.data
+        announcement.announcement_type = form.announcement_type.data
+        announcement.square = form.square.data
+        announcement.kitchen_square = form.kitchen_square.data
+        announcement.number_of_rooms = form.number_of_rooms.data
+        announcement.floor = form.floor.data
+        announcement.number_of_floors = form.number_of_floors.data
+        announcement.year_of_construction = form.year_of_construction.data
+        announcement.is_sell = form.is_sell.data
+
+        folder = os.path.join(
+            current_app.config["ANNOUNCEMENT_IMAGE_PATH"],
+            f"announcement_{announcement.id}"
+        )
+        os.makedirs(folder, exist_ok=True)
+
+        if form.main_image.data:
+            file = form.main_image.data
+            filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+            save_path = os.path.join(folder, filename)
+            file.save(save_path)
+            announcement.main_image = (
+                f"announcement_{announcement.id}/{filename}"
+                )
+
+        for img in announcement.images:
+            image_path = os.path.join(
+                current_app.config["ANNOUNCEMENT_IMAGE_PATH"], img.path
+            )
+            if os.path.exists(image_path):
+                os.remove(image_path)
+            db_sess.delete(img)
+
+        if form.extra_images.data:
+            for file in form.extra_images.data:
+                if file and file.filename:
+                    extra_filename = (
+                        f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+                    )
+                    extra_path = os.path.join(folder, extra_filename)
+                    file.save(extra_path)
+                    new_image = AnnouncementImages(
+                        path=(
+                            f"announcement_{announcement.id}/{extra_filename}"
+                            ),
+                        announcement=announcement
+                    )
+                    db_sess.add(new_image)
+
+        db_sess.commit()
+        return redirect(url_for("index"))
+
+    return render_template(
+        "creating_an_announcement.html",
+        title="Редактирование объявления",
+        form=form
         )
 
 

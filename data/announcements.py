@@ -25,10 +25,10 @@ class Announcements(SqlAlchemyBase, SerializerMixin, UserMixin):
     year_of_construction = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     main_image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
 
-    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.
-                                ForeignKey('users.id'), nullable=True)
-    user = orm.relationship('User')
+    user_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                sqlalchemy.ForeignKey("users.id"))
+    user = orm.relationship("User", backref="announcements")
 
-    images = orm.relationship("AnnouncementImage",
+    images = orm.relationship("AnnouncementImages",
                               back_populates="announcement",
                               cascade="all, delete", lazy="joined")
