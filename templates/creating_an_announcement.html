@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Создание объявления</h1>
+<form action="" method="post" enctype="multipart/form-data" class="row g-3">
+    {{ form.hidden_tag() }}
+
+    <div class="col-md-6">
+        {{ form.announcement_type.label(class="form-label") }}
+        {{ form.announcement_type(class="form-select") }}
+        {% for error in form.announcement_type.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control", autocomplete="off") }}
+        {% for error in form.title.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        {{ form.city.label(class="form-label") }}
+        {{ form.city(class="form-control", autocomplete="off") }}
+        {% for error in form.city.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        {{ form.street.label(class="form-label") }}
+        {{ form.street(class="form-control", autocomplete="off") }}
+        {% for error in form.street.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        {{ form.number_of_house.label(class="form-label") }}
+        {{ form.number_of_house(class="form-control", autocomplete="off") }}
+        {% for error in form.number_of_house.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.price.label(class="form-label") }}
+        {{ form.price(class="form-control") }}
+        {% for error in form.price.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.square.label(class="form-label") }}
+        {{ form.square(class="form-control") }}
+        {% for error in form.square.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.number_of_rooms.label(class="form-label") }}
+        {{ form.number_of_rooms(class="form-control") }}
+        {% for error in form.number_of_rooms.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6" id="floor-field">
+        {{ form.floor.label(class="form-label") }}
+        {{ form.floor(class="form-control") }}
+        {% for error in form.floor.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6" id="kitchen-square-field">
+        {{ form.kitchen_square.label(class="form-label") }}
+        {{ form.kitchen_square(class="form-control") }}
+        {% for error in form.kitchen_square.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6" id="number-of-floors-field" style="display: none;">
+        {{ form.number_of_floors.label(class="form-label") }}
+        {{ form.number_of_floors(class="form-control") }}
+        {% for error in form.number_of_floors.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6" id="year-of-construction-field" style="display: none;">
+        {{ form.year_of_construction.label(class="form-label") }}
+        {{ form.year_of_construction(class="form-control") }}
+        {% for error in form.year_of_construction.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        {{ form.main_image.label(class="form-label") }}
+        {{ form.main_image(class="form-control", type="file") }}
+        {% for error in form.main_image.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label" for="additional_image_1">Доп. изображение 1</label>
+        <input type="file" name="additional_image_1" class="form-control">
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label" for="additional_image_2">Доп. изображение 2</label>
+        <input type="file" name="additional_image_2" class="form-control">
+    </div>
+
+    <div class="col-12 mt-3">
+        <div class="form-check">
+            {{ form.is_sell(class="form-check-input") }}
+            {{ form.is_sell.label(class="form-check-label") }}
+        </div>
+    </div>
+
+    <div class="col-12">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control", rows="3") }}
+        {% for error in form.description.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+
+    {% if message %}
+        <div class="alert alert-warning mt-3">{{ message }}</div>
+    {% endif %}
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const typeField = document.getElementById("announcement_type");
+    const floorField = document.getElementById("floor-field");
+    const kitchenField = document.getElementById("kitchen-square-field");
+    const floorsField = document.getElementById("number-of-floors-field");
+    const yearField = document.getElementById("year-of-construction-field");
+
+    function toggleFields() {
+        if (typeField.value === "flat") {
+            floorField.style.display = "block";
+            kitchenField.style.display = "block";
+            floorsField.style.display = "none";
+            yearField.style.display = "none";
+        } else {
+            floorField.style.display = "none";
+            kitchenField.style.display = "none";
+            floorsField.style.display = "block";
+            yearField.style.display = "block";
+        }
+    }
+
+    toggleFields(); // начальное состояние
+    typeField.addEventListener("change", toggleFields);
+});
+</script>
+{% endblock %}

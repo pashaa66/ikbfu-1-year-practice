@@ -36,10 +36,21 @@ class CreateAnnouncementForm(FlaskForm):
     year_of_construction = IntegerField(
         "Год постройки", validators=[DataRequired()], default=2000
         )
-    photo = FileField(
-        "Фотография",
-        validators=[FileRequired(),
-                    FileAllowed(["jpg", "png"], "Только изображения")]
-        )
+
+    main_image = FileField(
+        "Основное фото",
+        validators=[FileRequired(), FileAllowed(["jpg", "png", "jpeg"],
+                                                "Только изображения!")]
+    )
+
+    additional_image_1 = FileField(
+        "Дополнительное фото 1",
+        validators=[FileAllowed(["jpg", "png", "jpeg"], "Только изображения!")]
+    )
+    additional_image_2 = FileField(
+        "Дополнительное фото 2",
+        validators=[FileAllowed(["jpg", "png", "jpeg"], "Только изображения!")]
+    )
+
     is_sell = BooleanField("Продаётся")
     submit = SubmitField("Создать")

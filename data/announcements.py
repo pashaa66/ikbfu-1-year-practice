@@ -23,8 +23,12 @@ class Announcements(SqlAlchemyBase, SerializerMixin, UserMixin):
     floor = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     number_of_floors = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     year_of_construction = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    path_to_photo = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    main_image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
 
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.
                                 ForeignKey('users.id'), nullable=True)
     user = orm.relationship('User')
+
+    images = orm.relationship("AnnouncementImage",
+                              back_populates="announcement",
+                              cascade="all, delete", lazy="joined")
