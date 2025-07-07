@@ -43,7 +43,7 @@ class CreateAnnouncementForm(FlaskForm):
                                                 "Только изображения!")]
     )
 
-    extra_photos = MultipleFileField(
+    extra_images = MultipleFileField(
         "Дополнительные изображения",
         validators=[FileRequired(),
                     FileAllowed(["jpg", "jpeg", "png"], "Только изображения")]

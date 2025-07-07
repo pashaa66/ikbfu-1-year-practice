@@ -110,9 +110,9 @@
     </div>
 
     <div class="col-md-4">
-        {{ form.extra_photos.label(class="form-label") }}
-        {{ form.extra_photos(class="form-control", type="file", multiple=true) }}
-        {% for error in form.extra_photos.errors %}
+        {{ form.extra_images.label(class="form-label") }}
+        {{ form.extra_images(class="form-control", type="file", multiple=true) }}
+        {% for error in form.extra_images.errors %}
             <div class="alert alert-danger mt-1">{{ error }}</div>
         {% endfor %}
     </div>

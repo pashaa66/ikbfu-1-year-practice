@@ -223,11 +223,30 @@ def creating_an_announcement():
                            title="Создание объявления", form=form)
 
 
+@app.route("/announcement/<int:id>")
+def announcement(id):
+    if not current_user.is_authenticated:
+        abort(403)
+    db_sess = db_session.create_session()
+    current_announcement = db_sess.query(Announcements).get(id)
+    if not current_announcement:
+        abort(404)
+    return render_template(
+        "announcement.html",
+        announcement=current_announcement,
+        title=current_announcement.title
+        )
+
+
 @app.route("/")
 def index():
-    # db_sess = db_session.create_session()
-    # announcement_list = db_sess.query(Announcements).all()
-    return render_template("index.html", title="Объявления")
+    db_sess = db_session.create_session()
+    announcement_list = db_sess.query(Announcements).all()
+    return render_template(
+        "index.html",
+        title="Объявления",
+        announcements=announcement_list
+        )
 
 
 if __name__ == "__main__":
