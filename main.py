@@ -94,7 +94,7 @@ def register_buyer():
         buyer.set_password(form.password.data)
         db_sess.add(buyer)
         db_sess.commit()
-        return redirect("")
+        return redirect("/login")
     return render_template("register_buyer.html",
                            title="Регистрация покупателя",
                            form=form)
@@ -151,7 +151,7 @@ def register_realtor():
         realtor.set_password(form.password.data)
         db_sess.add(realtor)
         db_sess.commit()
-        return redirect("/")
+        return redirect("/login")
     return render_template("register_realtor.html",
                            title="Регистрация риэлтора",
                            form=form)
