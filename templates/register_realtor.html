@@ -75,9 +75,9 @@
           </div>
 
           <div class="mb-4">
-            {{ form.profile_image.label(class="form-label") }}
-            {{ form.profile_image(class="form-control") }}
-            {% for error in form.profile_image.errors %}
+            {{ form.profile_picture.label(class="form-label") }}
+            {{ form.profile_picture(class="form-control") }}
+            {% for error in form.profile_picture.errors %}
               <div class="text-danger">{{ error }}</div>
             {% endfor %}
           </div>

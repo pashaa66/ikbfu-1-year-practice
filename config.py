@@ -12,3 +12,4 @@ class Config:
     ANNOUNCEMENT_IMAGE_PATH = os.path.join(BASE_IMAGE_PATH, "announcement")
 
     UPLOAD_FOLDER = BASE_IMAGE_PATH
+    ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}

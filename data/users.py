@@ -19,11 +19,11 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     phone_number = sqlalchemy.Column(sqlalchemy.
                                      String, unique=True, nullable=True)
     experience = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    deals = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    # deals = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     role = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     profile_picture = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    announcement = orm.relationship('Announcements', back_populates='user')
+    # announcement = orm.relationship('Announcements', back_populates='user')
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=dt.datetime.date(dt.
                                                               datetime.now()))

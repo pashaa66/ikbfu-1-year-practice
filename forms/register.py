@@ -7,30 +7,30 @@ from forms.custom_validators import check_phone
 
 
 class RegisterFormUser(FlaskForm):
-    name = StringField('Имя пользователя', validators=[DataRequired()])
-    surname = StringField('Фамилия пользователя', validators=[DataRequired()])
-    age = IntegerField('Возраст пользователя', validators=[DataRequired()])
-    email = EmailField('Почта', validators=[DataRequired()])
-    password = PasswordField('Пароль',
+    name = StringField("Имя пользователя", validators=[DataRequired()])
+    surname = StringField("Фамилия пользователя", validators=[DataRequired()])
+    age = IntegerField("Возраст пользователя", validators=[DataRequired()])
+    email = EmailField("Почта", validators=[DataRequired()])
+    password = PasswordField("Пароль",
                              validators=[DataRequired(), Length(min=8)])
-    password_again = PasswordField('Повторите пароль',
+    password_again = PasswordField("Повторите пароль",
                                    validators=[DataRequired(), Length(min=8)])
-    submit = SubmitField('Войти')
+    submit = SubmitField("Зарегистрироваться")
 
 
 class RegisterFormRealtor(FlaskForm):
-    name = StringField('Имя риэлтора', validators=[DataRequired()])
-    surname = StringField('Фамилия риэлтора', validators=[DataRequired()])
-    age = IntegerField('Возраст риэлтора', validators=[DataRequired()])
-    email = EmailField('Почта', validators=[DataRequired()])
-    phone_number = TelField('Номер телефона', validators=[DataRequired(),
+    name = StringField("Имя риэлтора", validators=[DataRequired()])
+    surname = StringField("Фамилия риэлтора", validators=[DataRequired()])
+    age = IntegerField("Возраст риэлтора", validators=[DataRequired()])
+    email = EmailField("Почта", validators=[DataRequired()])
+    phone_number = TelField("Номер телефона", validators=[DataRequired(),
                                                           check_phone])
-    experience = IntegerField('Стаж работы', validators=[DataRequired()])
-    password = PasswordField('Пароль', validators=[DataRequired(),
+    experience = IntegerField("Стаж работы", validators=[DataRequired()])
+    password = PasswordField("Пароль", validators=[DataRequired(),
                                                    Length(min=8)])
-    password_again = PasswordField('Повторите пароль',
+    password_again = PasswordField("Повторите пароль",
                                    validators=[DataRequired(), Length(min=8)])
-    profile_image = FileField('Фотография профиля', validators=[
-        FileAllowed(['jpg', 'png', 'jpeg'], 'Только изображения!')
+    profile_picture = FileField("Фотография профиля", validators=[
+        FileAllowed(["jpg", "png", "jpeg"], "Только изображения!")
     ])
-    submit = SubmitField('Войти')
+    submit = SubmitField("Зарегистрироваться")

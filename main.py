@@ -6,6 +6,7 @@ from data.users import User
 from data import db_session
 from werkzeug.utils import secure_filename
 from config import Config
+from forms.custom_validators import allowed_file
 import os
 
 # Настройка
@@ -31,7 +32,7 @@ def load_user(user_id):
 # Авторизация и выход
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -41,13 +42,13 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
-        return render_template('login.html',
-                               message='Неправильный логин или пароль',
+        return render_template("login.html",
+                               message="Неправильный логин или пароль",
                                form=form)
-    return render_template('login.html', title='Авторизация', form=form)
+    return render_template("login.html", title="Авторизация", form=form)
 
 
-@app.route('/logout')
+@app.route("/logout")
 @login_required
 def logout():
     logout_user()
@@ -60,69 +61,75 @@ def register():
     return render_template("register_menu.html", title="Регистрация")
 
 
-@app.route('/register_buyer', methods=['GET', 'POST'])
+@app.route("/register_buyer", methods=["GET", "POST"])
 def register_buyer():
     form = RegisterFormUser()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register_buyer.html',
-                                   title='Регистрация покупателя',
+            return render_template("register_buyer.html",
+                                   title="Регистрация покупателя",
                                    form=form,
-                                   message='Пароли не совпадают')
+                                   message="Пароли не совпадают")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register_buyer.html',
-                                   title='Регистрация покупателя',
+            return render_template("register_buyer.html",
+                                   title="Регистрация покупателя",
                                    form=form,
-                                   message='Такой пользователь уже есть')
+                                   message="Такой пользователь уже есть")
         buyer = User(
             name=form.name.data,
             surname=form.surname.data,
             age=form.age.data,
             email=form.email.data,
-            role='buyer'
+            role="buyer"
         )
         buyer.set_password(form.password.data)
         db_sess.add(buyer)
         db_sess.commit()
-        return redirect('/login')
-    return render_template('register_buyer.html',
-                           title='Регистрация покупателя',
+        return redirect("/login")
+    return render_template("register_buyer.html",
+                           title="Регистрация покупателя",
                            form=form)
 
 
-@app.route('/register_realtor', methods=['GET', 'POST'])
+@app.route("/register_realtor", methods=["GET", "POST"])
 def register_realtor():
     form = RegisterFormRealtor()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register_realtor.html',
-                                   title='Регистрация риэлтора',
+            return render_template("register_realtor.html",
+                                   title="Регистрация риэлтора",
                                    form=form,
-                                   message='Пароли не совпадают')
+                                   message="Пароли не совпадают")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register_realtor.html',
-                                   title='Регистрация риэлтора',
+            return render_template("register_realtor.html",
+                                   title="Регистрация риэлтора",
                                    form=form,
-                                   message='Такой пользователь уже есть')
+                                   message="Такой пользователь уже есть")
         existing_user = db_sess.query(
             User).filter(User.phone_number == form.phone_number.data).first()
         if existing_user:
-            return render_template('register_buyer.html',
-                                   title='Регистрация риэлтора',
+            return render_template("register_buyer.html",
+                                   title="Регистрация риэлтора",
                                    form=form,
-                                   message='Такой пользователь уже есть')
-        profile_image_filename = None
-        if form.profile_image.data:
-            file = form.profile_image.data
-            filename = secure_filename(file.filename)
-            upload_folder = os.path.join(current_app.root_path, "static", "img", "uploads", )
-            os.makedirs(upload_folder, exist_ok=True)
-            file_path = os.path.join(upload_folder, filename)
-            file.save(file_path)
-            profile_image_filename = filename
-
+                                   message="Такой пользователь уже есть")
+        filename = ""
+        if form.profile_picture.data:
+            file = form.profile_picture.data
+            if allowed_file(file.filename,
+                            current_app.config["ALLOWED_EXTENSIONS"]):
+                filename = secure_filename(file.filename)
+                upload_path = os.path.join(
+                    current_app.config["REALTOR_IMAGE_PATH"], filename)
+                os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+                file.save(upload_path)
+            else:
+                return render_template("register_realtor.html",
+                                       title="Регистрация риэлтора",
+                                       form=form,
+                                       message="Неверный формат изображения." +
+                                       "Разрешены: jpg, jpeg, png")
         realtor = User(
             name=form.name.data,
             surname=form.surname.data,
@@ -130,14 +137,15 @@ def register_realtor():
             email=form.email.data,
             phone_number=form.phone_number.data,
             experience=form.experience.data,
-            role='realtor'
+            role="realtor",
+            profile_picture=filename
         )
         realtor.set_password(form.password.data)
         db_sess.add(realtor)
         db_sess.commit()
-        return redirect('/login')
-    return render_template('register_realtor.html',
-                           title='Регистрация риэлтора',
+        return redirect("/login")
+    return render_template("register_realtor.html",
+                           title="Регистрация риэлтора",
                            form=form)
 
 
@@ -145,7 +153,7 @@ def register_realtor():
 def index():
     # db_sess = db_session.create_session()
     # announcement_list = db_sess.query(Announcements).all()
-    return render_template('index.html', title='Объявления')
+    return render_template("index.html", title="Объявления")
 
 
 if __name__ == "__main__":
