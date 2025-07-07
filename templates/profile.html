@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-3 text-center">
+            {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename='img/realtor/' + user.profile_picture) }}"
+                     class="img-fluid rounded-circle" style="width: 150px; height: 150px;" alt="Аватар">
+            {% else %}
+                <img src="{{ url_for('static', filename='img/default_avatar.png') }}"
+                     class="img-fluid rounded-circle" style="width: 150px; height: 150px;" alt="Аватар">
+            {% endif %}
+        </div>
+        <div class="col-md-9 d-flex flex-column justify-content-center">
+            <h2>{{ user.name }} {{ user.surname }}</h2>
+        </div>
+    </div>
+
+    <h4>Мои объявления</h4>
+    <div class="row">
+        {% for announcement in announcements %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="{{ url_for('static', filename='img/announcement/' + announcement.main_image) }}"
+                         class="card-img-top" alt="Фото объекта">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ announcement.title }}</h5>
+                        <p class="card-text">Цена: {{ announcement.price }}₽</p>
+                        <p class="card-text">Просмотры: {{ announcement.visits or 0 }}</p>
+                        <a href="{{ url_for('announcement', id=announcement.id) }}" class="btn btn-primary">Подробнее</a>
+                        <a href="{{ url_for('edit_announcement', id=announcement.id) }}" class="btn btn-outline-secondary ms-2">Редактировать</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Объявлений пока нет.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

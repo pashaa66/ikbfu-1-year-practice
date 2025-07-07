@@ -17,7 +17,7 @@
         <div class="ms-auto d-flex align-items-center gap-3">
             {% if current_user.is_authenticated %}
                 {% if current_user.role == "realtor" %}
-                    <a href="/profile/{{ current_user.id }}" class="text-decoration-none text-dark d-flex align-items-center">
+                    <a href="{{ url_for('profile', id=current_user.id) }}" class="text-decoration-none text-dark d-flex align-items-center">
                         {% if current_user.profile_picture %}
                             <img src="{{ url_for('static', filename='img/realtor/' ~ current_user.profile_picture) }}"
                                  alt="Аватар" class="avatar-sm">

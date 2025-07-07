@@ -236,6 +236,8 @@ def announcement(id):
     current_announcement = db_sess.query(Announcements).get(id)
     if not current_announcement:
         abort(404)
+    announcement.visits = (announcement.visits or 0) + 1
+    db_sess.commit()
     return render_template(
         "announcement.html",
         announcement=current_announcement,
@@ -338,6 +340,24 @@ def edit_announcement(id):
         title="Редактирование объявления",
         form=form
         )
+
+
+@app.route("/profile/<int:id>")
+@login_required
+def profile(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    if not user or user.role != "realtor":
+        abort(404)
+
+    announcements = db_sess.query(
+        Announcements).filter(Announcements.user_id == user.id).all()
+
+    return render_template(
+        "profile.html",
+        user=user,
+        announcements=announcements,
+        title="Профиль")
 
 
 @app.route("/")
