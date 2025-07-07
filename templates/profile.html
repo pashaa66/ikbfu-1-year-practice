@@ -28,6 +28,14 @@
                         <h5 class="card-title">{{ announcement.title }}</h5>
                         <p class="card-text">Цена: {{ announcement.price }}₽</p>
                         <p class="card-text">Просмотры: {{ announcement.visits or 0 }}</p>
+                         <p class="card-text">
+                            Статус:
+                            {% if announcement.is_sell %}
+                                <span class="text-success">Продается</span>
+                            {% else %}
+                                <span class="text-primary">Не продается</span>
+                             {% endif %}
+                        </p>
                         <a href="{{ url_for('announcement', id=announcement.id) }}" class="btn btn-primary">Подробнее</a>
                         <a href="{{ url_for('edit_announcement', id=announcement.id) }}" class="btn btn-outline-secondary ms-2">Редактировать</a>
                         
