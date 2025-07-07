@@ -94,7 +94,7 @@ def register_buyer():
         buyer.set_password(form.password.data)
         db_sess.add(buyer)
         db_sess.commit()
-        return redirect("/login")
+        return redirect("")
     return render_template("register_buyer.html",
                            title="Регистрация покупателя",
                            form=form)
@@ -151,7 +151,7 @@ def register_realtor():
         realtor.set_password(form.password.data)
         db_sess.add(realtor)
         db_sess.commit()
-        return redirect("/login")
+        return redirect("/")
     return render_template("register_realtor.html",
                            title="Регистрация риэлтора",
                            form=form)
@@ -236,7 +236,7 @@ def announcement(id):
     current_announcement = db_sess.query(Announcements).get(id)
     if not current_announcement:
         abort(404)
-    announcement.visits = (announcement.visits or 0) + 1
+    current_announcement.visits = (current_announcement.visits or 0) + 1
     db_sess.commit()
     return render_template(
         "announcement.html",
@@ -340,6 +340,42 @@ def edit_announcement(id):
         title="Редактирование объявления",
         form=form
         )
+
+
+@app.route("/delete_announcement/<int:id>", methods=["POST"])
+@login_required
+def delete_announcement(id):
+    db_sess = db_session.create_session()
+    announcement = db_sess.query(
+        Announcements).filter(Announcements.id == id).first()
+
+    if not announcement:
+        abort(404)
+
+    if (current_user.role != "realtor" or
+            announcement.user_id != current_user.id):
+        abort(403)
+
+    if announcement.main_image:
+        main_path = os.path.join(
+            current_app.root_path,
+            current_app.config["ANNOUNCEMENT_IMAGE_PATH"],
+            announcement.main_image
+        )
+        if os.path.exists(main_path):
+            os.remove(main_path)
+
+    for img in announcement.images:
+        img_path = os.path.join(
+            current_app.config["ANNOUNCEMENT_IMAGE_PATH"],
+            img.path)
+        if os.path.exists(img_path):
+            os.remove(img_path)
+        db_sess.delete(img)
+
+    db_sess.delete(announcement)
+    db_sess.commit()
+    return redirect(url_for("profile", id=current_user.id))
 
 
 @app.route("/profile/<int:id>")
