@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SubmitField
-from wtforms import SelectField, BooleanField
+from wtforms import SelectField, BooleanField, MultipleFileField
 from wtforms.validators import DataRequired, Length, NumberRange
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
@@ -43,14 +43,11 @@ class CreateAnnouncementForm(FlaskForm):
                                                 "Только изображения!")]
     )
 
-    additional_image_1 = FileField(
-        "Дополнительное фото 1",
-        validators=[FileAllowed(["jpg", "png", "jpeg"], "Только изображения!")]
-    )
-    additional_image_2 = FileField(
-        "Дополнительное фото 2",
-        validators=[FileAllowed(["jpg", "png", "jpeg"], "Только изображения!")]
-    )
+    extra_photos = MultipleFileField(
+        "Дополнительные изображения",
+        validators=[FileRequired(),
+                    FileAllowed(["jpg", "jpeg", "png"], "Только изображения")]
+        )
 
     is_sell = BooleanField("Продаётся")
     submit = SubmitField("Создать")

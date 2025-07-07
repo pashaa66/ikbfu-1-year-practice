@@ -1,15 +1,21 @@
-from flask import Flask, render_template, redirect, current_app
+from flask import Flask, render_template, redirect, current_app, abort
 from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import current_user
 from forms.login import LoginForm
 from forms.register import RegisterFormUser, RegisterFormRealtor
+from forms.announcement import CreateAnnouncementForm
 from data.users import User
+from data.announcements import Announcements
+from data.announcement_images import AnnouncementImages
 from data import db_session
 from werkzeug.utils import secure_filename
 from config import Config
 from forms.custom_validators import allowed_file
 import os
+import uuid
 
 # Настройка
+
 app = Flask(__name__)
 app.config.from_object(Config)
 os.makedirs(app.config["REALTOR_IMAGE_PATH"], exist_ok=True)
@@ -56,6 +62,7 @@ def logout():
 
 
 # Регистрация
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     return render_template("register_menu.html", title="Регистрация")
@@ -147,6 +154,73 @@ def register_realtor():
     return render_template("register_realtor.html",
                            title="Регистрация риэлтора",
                            form=form)
+
+
+# Создание объявлений
+
+@app.route("/creating_an_announcement", methods=["GET", "POST"])
+@login_required
+def creating_an_announcement():
+    if current_user.role != "realtor":
+        abort(403)
+    form = CreateAnnouncementForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        location = (
+            f"{form.city.data}, "
+            f"{form.street.data}, "
+            f"{form.number_of_house.data}"
+        )
+        announcement = Announcements(
+            title=form.title.data,
+            description=form.description.data,
+            location=location,
+            price=form.price.data,
+            announcement_type=form.announcement_type.data,
+            square=form.square.data,
+            kitchen_square=form.kitchen_square.data,
+            number_of_rooms=form.number_of_rooms.data,
+            floor=form.floor.data,
+            number_of_floors=form.number_of_floors.data,
+            year_of_construction=form.year_of_construction.data,
+            is_sell=form.is_sell.data,
+            user=current_user
+        )
+        if form.main_image.data:
+            file = form.main_image.data
+            filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+            save_path = os.path.join(
+                current_app.config["ANNOUNCEMENT_IMAGE_PATH"], filename
+                )
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            file.save(save_path)
+            announcement.main_image = filename
+
+        db_sess.add(announcement)
+        db_sess.commit()
+
+        if form.extra_photos.data:
+            for file in form.extra_photos.data:
+                if file and file.filename:
+                    extra_filename = (
+                        f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+                        )
+                    extra_path = os.path.join(
+                        current_app.config["ANNOUNCEMENT_IMAGE_PATH"],
+                        extra_filename
+                        )
+                    file.save(extra_path)
+                    image = AnnouncementImages(
+                        path=extra_filename,
+                        announcement_id=announcement.id
+                    )
+                    db_sess.add(image)
+
+        db_sess.commit()
+
+        return redirect("/")
+    return render_template("creating_an_announcement.html",
+                           title="Создание объявления", form=form)
 
 
 @app.route("/")

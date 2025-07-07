@@ -4,7 +4,7 @@ from sqlalchemy_serializer import SerializerMixin
 from .db_session import SqlAlchemyBase
 
 
-class AnnouncementImage(SqlAlchemyBase, SerializerMixin):
+class AnnouncementImages(SqlAlchemyBase, SerializerMixin):
     __tablename__ = "announcement_images"
 
     id = sqlalchemy.Column(

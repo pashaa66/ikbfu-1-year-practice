@@ -110,13 +110,11 @@
     </div>
 
     <div class="col-md-4">
-        <label class="form-label" for="additional_image_1">Доп. изображение 1</label>
-        <input type="file" name="additional_image_1" class="form-control">
-    </div>
-
-    <div class="col-md-4">
-        <label class="form-label" for="additional_image_2">Доп. изображение 2</label>
-        <input type="file" name="additional_image_2" class="form-control">
+        {{ form.extra_photos.label(class="form-label") }}
+        {{ form.extra_photos(class="form-control", type="file", multiple=true) }}
+        {% for error in form.extra_photos.errors %}
+            <div class="alert alert-danger mt-1">{{ error }}</div>
+        {% endfor %}
     </div>
 
     <div class="col-12 mt-3">
@@ -165,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    toggleFields(); // начальное состояние
+    toggleFields();
     typeField.addEventListener("change", toggleFields);
 });
 </script>
